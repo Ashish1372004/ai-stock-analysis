@@ -1,0 +1,31 @@
+# Python libraries
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+.env
+
+# Database
+*.db
+*.sqlite
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+frontend/.env.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# AI-Stock Specific Temporary Files
+tmp_reqs.txt
+debug_news.py
+debug_service.py
+rough.txt
+.kiro/
+
+# OS files
+Thumbs.db
+.DS_Store
