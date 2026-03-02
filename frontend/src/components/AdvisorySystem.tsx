@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../lib/api';
 import { motion } from 'framer-motion';
 import { Bell, ShieldAlert, Zap, TrendingUp, Info, Plus, X } from 'lucide-react';
 import Skeleton from './Skeleton';
@@ -15,16 +15,16 @@ export const AlertsSystem: React.FC = () => {
     }, []);
 
     const fetchAlerts = () => {
-        axios.get('/api/alerts').then(res => setAlerts(res.data)).catch(() => setAlerts([]));
+        api.get('/api/alerts').then(res => setAlerts(res.data)).catch(() => setAlerts([]));
     };
 
     const deleteAlert = (id: string) => {
-        axios.delete(`/api/alerts/${id}`).then(() => fetchAlerts()).catch(err => console.error(err));
+        api.delete(`/api/alerts/${id}`).then(() => fetchAlerts()).catch(err => console.error(err));
     };
 
     const saveAlert = () => {
         if (!newAlert.symbol || newAlert.threshold <= 0) return;
-        axios.post('/api/alerts', newAlert)
+        api.post('/api/alerts', newAlert)
             .then(() => {
                 fetchAlerts();
                 setIsCreating(false);
@@ -100,7 +100,7 @@ export const AlertsSystem: React.FC = () => {
                         No active monitors. Set one above.
                     </div>
                 ) : (
-                    alerts.map((alert, idx) => (
+                    alerts.map((alert) => (
                         <motion.div
                             key={alert.id}
                             initial={{ opacity: 0, y: 10 }}
@@ -134,7 +134,7 @@ export const AdviserPanel: React.FC = () => {
     const [summary, setSummary] = useState<any>(null);
 
     useEffect(() => {
-        axios.get('/api/adviser/summary').then(res => setSummary(res.data));
+        api.get('/api/adviser/summary').then(res => setSummary(res.data));
     }, []);
 
     if (!summary) return <AdvisorySkeleton />;
@@ -167,7 +167,7 @@ export const AdviserPanel: React.FC = () => {
                             </div>
                         </div>
                         <div className="p-6 bg-slate-800/30 border border-slate-700/50 rounded-3xl md:col-span-2">
-                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2">Risk Assessment</span>
+                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-1 block mb-2">Risk Assessment</span>
                             <p className="font-bold text-slate-300">{summary.risk_assessment}</p>
                         </div>
                     </div>

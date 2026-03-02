@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import api from '../lib/api';
 import { motion } from 'framer-motion';
 import { ExternalLink, Clock, Newspaper } from 'lucide-react';
 import { NewsCardSkeleton } from './Skeleton';
@@ -22,7 +22,7 @@ const NewsFeed: React.FC<{ symbol?: string; compact?: boolean }> = ({ symbol, co
             setLoading(true);
             try {
                 const url = symbol ? `/api/news?symbol=${symbol}` : '/api/news';
-                const res = await axios.get(url);
+                const res = await api.get(url);
                 setNews(res.data);
             } catch (err) {
                 console.error("News fetch error:", err);

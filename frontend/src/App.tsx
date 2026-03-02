@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from './lib/api';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Bell, User, BarChart2, TrendingUp, Shield, HelpCircle, Layout, Newspaper } from 'lucide-react';
+import { Search, Bell, User, TrendingUp, Shield, Layout, Newspaper } from 'lucide-react';
 import CandleChart from './components/CandleChart';
 import RecommendationCard from './components/RecommendationCard';
-import Watchlist from './components/Watchlist';
 import StockTile from './components/StockTile';
 import NewsFeed from './components/NewsFeed';
 import { AlertsSystem, AdviserPanel } from './components/AdvisorySystem';
@@ -34,9 +33,9 @@ const App: React.FC = () => {
         setLoading(true);
         try {
             const [analysisRes, recRes, chartRes] = await Promise.all([
-                axios.get(`/api/analyze/${s}`),
-                axios.get(`/api/recommendation/${s}`),
-                axios.get(`/api/charts/${s}/candlestick`)
+                api.get(`/api/analyze/${s}`),
+                api.get(`/api/recommendation/${s}`),
+                api.get(`/api/charts/${s}/candlestick`)
             ]);
             setAnalysis(analysisRes.data);
             setRecommendation(recRes.data);
@@ -52,7 +51,7 @@ const App: React.FC = () => {
     const fetchWatchlist = async () => {
         setLoading(true); // Prioritize dashboard loading
         try {
-            const res = await axios.get('/api/watchlist');
+            const res = await api.get('/api/watchlist');
             setWatchlist(res.data);
         } catch (error) {
             console.error("Error fetching watchlist:", error);
