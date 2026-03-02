@@ -3,6 +3,10 @@
   publish = "dist"
   base = "frontend"
 
+[build.environment]
+  PYTHON_VERSION = "3.11.7"
+  NODE_VERSION = "18"
+
 [[redirects]]
   # This rule ensures all routes are handled by index.html (SPA)
   from = "/*"
