@@ -3,7 +3,6 @@ import '../index.css';
 
 const CursorEffect: React.FC = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const cursorRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const canvas = canvasRef.current;

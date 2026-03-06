@@ -18,7 +18,7 @@ const Watchlist: React.FC<WatchlistProps> = ({ items, onSelect }) => {
         <div className="glass-card p-6">
             <h2 className="text-xl font-bold mb-6">Trending Analysis</h2>
             <div className="space-y-2">
-                {items.map((item, idx) => (
+                {items.map((item) => (
                     <motion.button
                         key={item.symbol}
                         whileHover={{ x: 5 }}
