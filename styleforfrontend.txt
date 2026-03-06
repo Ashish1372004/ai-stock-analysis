@@ -1,0 +1,283 @@
+→<!DOCTYPE html>
+     2→<html lang="en">
+     3→<head>
+     4→    <meta charset="UTF-8">
+     5→    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     6→    <title>Cursor Following Pattern Effect</title>
+     7→    <style>
+     8→        * {
+     9→            margin: 0;
+    10→            padding: 0;
+    11→            box-sizing: border-box;
+    12→        }
+    13→
+    14→        body {
+    15→            width: 100vw;
+    16→            height: 100vh;
+    17→            overflow: hidden;
+    18→            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
+    19→            font-family: 'Arial', sans-serif;
+    20→        }
+    21→
+    22→        canvas {
+    23→            display: block;
+    24→            cursor: none;
+    25→        }
+    26→
+    27→        .cursor {
+    28→            position: fixed;
+    29→            width: 20px;
+    30→            height: 20px;
+    31→            border: 2px solid #00ffff;
+    32→            border-radius: 50%;
+    33→            pointer-events: none;
+    34→            transform: translate(-50%, -50%);
+    35→            transition: width 0.2s, height 0.2s;
+    36→            z-index: 1000;
+    37→            box-shadow: 0 0 20px #00ffff;
+    38→        }
+    39→
+    40→        .info {
+    41→            position: fixed;
+    42→            top: 20px;
+    43→            left: 20px;
+    44→            color: #fff;
+    45→            font-size: 14px;
+    46→            z-index: 100;
+    47→            background: rgba(0, 0, 0, 0.5);
+    48→            padding: 15px;
+    49→            border-radius: 8px;
+    50→            backdrop-filter: blur(10px);
+    51→        }
+    52→
+    53→        .info h2 {
+    54→            margin-bottom: 10px;
+    55→            color: #00ffff;
+    56→        }
+    57→
+    58→        .info p {
+    59→            margin: 5px 0;
+    60→            opacity: 0.8;
+    61→        }
+    62→    </style>
+    63→</head>
+    64→<body>
+    65→    <div class="cursor"></div>
+    66→    <div class="info">
+    67→        <h2>Cursor Pattern Effect</h2>
+    68→        <p>Move your cursor around</p>
+    69→        <p>Particles react to proximity</p>
+    70→    </div>
+    71→    <canvas id="canvas"></canvas>
+    72→
+    73→    <script>
+    74→        const canvas = document.getElementById('canvas');
+    75→        const ctx = canvas.getContext('2d');
+    76→        const cursorElement = document.querySelector('.cursor');
+    77→
+    78→        // Set canvas size
+    79→        canvas.width = window.innerWidth;
+    80→        canvas.height = window.innerHeight;
+    81→
+    82→        // Mouse position
+    83→        const mouse = {
+    84→            x: canvas.width / 2,
+    85→            y: canvas.height / 2
+    86→        };
+    87→
+    88→        // Particle class
+    89→        class Particle {
+    90→            constructor(x, y) {
+    91→                this.baseX = x;
+    92→                this.baseY = y;
+    93→                this.x = x;
+    94→                this.y = y;
+    95→                this.size = 3;
+    96→                this.density = (Math.random() * 30) + 1;
+    97→                this.distance = 0;
+    98→            }
+    99→
+   100→            draw() {
+   101→                // Calculate distance from mouse
+   102→                const dx = mouse.x - this.x;
+   103→                const dy = mouse.y - this.y;
+   104→                this.distance = Math.sqrt(dx * dx + dy * dy);
+   105→
+   106→                // Move particle based on distance
+   107→                const forceDirectionX = dx / this.distance;
+   108→                const forceDirectionY = dy / this.distance;
+   109→                const maxDistance = 150;
+   110→                const force = (maxDistance - this.distance) / maxDistance;
+   111→                const directionX = forceDirectionX * force * this.density;
+   112→                const directionY = forceDirectionY * force * this.density;
+   113→
+   114→                if (this.distance < maxDistance) {
+   115→                    this.x -= directionX;
+   116→                    this.y -= directionY;
+   117→                } else {
+   118→                    // Return to base position
+   119→                    if (this.x !== this.baseX) {
+   120→                        const dx = this.x - this.baseX;
+   121→                        this.x -= dx / 10;
+   122→                    }
+   123→                    if (this.y !== this.baseY) {
+   124→                        const dy = this.y - this.baseY;
+   125→                        this.y -= dy / 10;
+   126→                    }
+   127→                }
+   128→
+   129→                // Draw particle with glow effect
+   130→                ctx.beginPath();
+   131→
+   132→                // Glow
+   133→                if (this.distance < maxDistance) {
+   134→                    const opacity = 1 - (this.distance / maxDistance);
+   135→                    ctx.shadowBlur = 15;
+   136→                    ctx.shadowColor = `rgba(0, 255, 255, ${opacity})`;
+   137→                }
+   138→
+   139→                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+   140→
+   141→                // Color based on distance
+   142→                if (this.distance < maxDistance) {
+   143→                    const hue = (this.distance / maxDistance) * 180 + 180;
+   144→                    ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
+   145→                } else {
+   146→                    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+   147→                }
+   148→
+   149→                ctx.fill();
+   150→                ctx.shadowBlur = 0;
+   151→            }
+   152→        }
+   153→
+   154→        // Create particle grid
+   155→        const particlesArray = [];
+   156→        const numberOfParticles = (canvas.width * canvas.height) / 4000;
+   157→        const gridSpacing = 30;
+   158→
+   159→        function init() {
+   160→            particlesArray.length = 0;
+   161→
+   162→            const cols = Math.floor(canvas.width / gridSpacing);
+   163→            const rows = Math.floor(canvas.height / gridSpacing);
+   164→
+   165→            for (let y = 0; y < rows; y++) {
+   166→                for (let x = 0; x < cols; x++) {
+   167→                    const posX = x * gridSpacing + gridSpacing / 2;
+   168→                    const posY = y * gridSpacing + gridSpacing / 2;
+   169→                    particlesArray.push(new Particle(posX, posY));
+   170→                }
+   171→            }
+   172→        }
+   173→
+   174→        // Connect nearby particles
+   175→        function connectParticles() {
+   176→            for (let i = 0; i < particlesArray.length; i++) {
+   177→                for (let j = i + 1; j < particlesArray.length; j++) {
+   178→                    const dx = particlesArray[i].x - particlesArray[j].x;
+   179→                    const dy = particlesArray[i].y - particlesArray[j].y;
+   180→                    const distance = Math.sqrt(dx * dx + dy * dy);
+   181→
+   182→                    if (distance < gridSpacing * 1.5) {
+   183→                        const opacity = 1 - (distance / (gridSpacing * 1.5));
+   184→                        ctx.strokeStyle = `rgba(255, 255, 255, ${opacity * 0.2})`;
+   185→                        ctx.lineWidth = 1;
+   186→                        ctx.beginPath();
+   187→                        ctx.moveTo(particlesArray[i].x, particlesArray[i].y);
+   188→                        ctx.lineTo(particlesArray[j].x, particlesArray[j].y);
+   189→                        ctx.stroke();
+   190→                    }
+   191→                }
+   192→            }
+   193→        }
+   194→
+   195→        // Animation loop
+   196→        function animate() {
+   197→            ctx.clearRect(0, 0, canvas.width, canvas.height);
+   198→
+   199→            // Draw ***s
+   200→            connectParticles();
+   201→
+   202→            // Draw particles
+   203→            for (let i = 0; i < particlesArray.length; i++) {
+   204→                particlesArray[i].draw();
+   205→            }
+   206→
+   207→            requestAnimationFrame(animate);
+   208→        }
+   209→
+   210→        // Mouse move event
+   211→        window.addEventListener('mousemove', (e) => {
+   212→            mouse.x = e.x;
+   213→            mouse.y = e.y;
+   214→
+   215→            // Update custom cursor
+   216→            cursorElement.style.left = e.x + 'px';
+   217→            cursorElement.style.top = e.y + 'px';
+   218→        });
+   219→
+   220→        // Resize event
+   221→        window.addEventListener('resize', () => {
+   222→            canvas.width = window.innerWidth;
+   223→            canvas.height = window.innerHeight;
+   224→            init();
+   225→        });
+   226→
+   227→        // Initialize and start
+   228→        init();
+   229→        animate();
+   230→    </script>
+   231→</body>
+   232→</html>
+  explaination  
+Here's the complete code! The file has already been created at cursor-pattern.html in your workspace.
+
+Code Structure:
+
+HTML & CSS (lines 1-62):
+
+Dark gradient background
+Custom cursor styling with glow effect
+Info panel with instructions
+JavaScript Logic (lines 73-230):
+
+Particle Class (lines 89-152):
+
+Each particle stores its base position and current position
+draw() method calculates distance from cursor and applies force
+Particles are pushed away when cursor is within 150px
+Color changes from white → cyan → magenta based on distance
+Glow effect intensifies near cursor
+Grid Creation (lines 159-172):
+
+Creates evenly spaced particles (30px apart)
+Calculates grid based on screen size
+Particle Connections (lines 174-193):
+
+Draws lines between nearby particles
+Line opacity fades with distance
+Animation Loop (lines 195-208):
+
+Clears canvas each frame
+Draws ***s and particles
+Uses requestAnimationFrame for smooth 60fps
+Event Handlers (lines 210-225):
+
+Tracks mouse position
+Handles window resize
+Key Parameters You Can Customize:
+
+maxDistance: 150 (line 109) - cursor influence radius
+gridSpacing: 30 (line 157) - distance between particles
+this.size = 3 (line 95) - particle size
+this.density (line 96) - how much particles move
+The file is ready to use - just open it in any browser!**
+
+Perfect! I've provided you with the complete code. The file cursor-pattern.html is already in your workspace and contains everything you need.
+
+You can:
+
+Open it directly in any web browser to see the effect in action
+Copy the code for your own project
+Customize it by adjusting the parameters I mentioned (colors, particle size, grid spacing, cursor influence distance)

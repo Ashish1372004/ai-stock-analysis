@@ -10,10 +10,23 @@
 
 @layer components {
   .glass-card {
-    @apply bg-slate-900/50 backdrop-blur-xl border border-slate-800 rounded-2xl shadow-2xl;
+    @apply bg-slate-900/95 backdrop-blur-3xl border border-slate-800 rounded-2xl shadow-2xl;
   }
-  
+
   .glass-button {
     @apply px-6 py-3 rounded-full bg-gradient-to-r from-accent to-accent-secondary text-white font-semibold transition-all hover:scale-105 active:scale-95;
+  }
+
+  .custom-cursor {
+    position: fixed;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #00ffff;
+    border-radius: 50%;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    transition: width 0.2s, height 0.2s;
+    z-index: -1;
+    box-shadow: 0 0 20px #00ffff;
   }
 }

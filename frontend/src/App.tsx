@@ -1,21 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import api from './lib/api';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Search, Bell, User, TrendingUp, Shield, Layout, Newspaper } from 'lucide-react';
+import { Bell, User, TrendingUp, Shield, Layout, Newspaper } from 'lucide-react';
 import CandleChart from './components/CandleChart';
 import RecommendationCard from './components/RecommendationCard';
 import StockTile from './components/StockTile';
 import NewsFeed from './components/NewsFeed';
 import { AlertsSystem, AdviserPanel } from './components/AdvisorySystem';
 import { StockTileSkeleton } from './components/Skeleton';
+import CursorEffect from './components/CursorEffect';
+import StockSearch from './components/StockSearch';
 
 const App: React.FC = () => {
-    const [symbol, setSymbol] = useState('');
     const [analysis, setAnalysis] = useState<any>(null);
     const [recommendation, setRecommendation] = useState<any>(null);
     const [chartData, setChartData] = useState<any[]>([]);
     const [watchlist, setWatchlist] = useState<any[]>([]);
     const [loading, setLoading] = useState(false);
+    const [visibleCount, setVisibleCount] = useState(8);
     const [view, setView] = useState<'dashboard' | 'analysis' | 'news' | 'alerts' | 'advisory'>(() => {
         return (localStorage.getItem('activeTab') as any) || 'dashboard';
     });
@@ -60,15 +62,11 @@ const App: React.FC = () => {
         }
     };
 
-    const handleSearch = (e: React.FormEvent) => {
-        e.preventDefault();
-        fetchAnalysis(symbol);
-    };
-
     return (
-        <div className="flex h-screen overflow-hidden">
+        <div className="flex h-screen overflow-hidden relative">
+            <CursorEffect />
             {/* Sidebar (Simplified) */}
-            <aside className="w-20 lg:w-24 bg-slate-900 border-r border-slate-800 flex flex-col p-4 items-center">
+            <aside className="w-20 lg:w-24 bg-slate-900 border-r border-slate-800 flex flex-col p-4 items-center relative z-10">
                 <div className="w-12 h-12 bg-accent rounded-xl flex items-center justify-center mb-10 shadow-lg shadow-accent/20 cursor-pointer" onClick={() => setView('dashboard')}>
                     <TrendingUp className="text-white w-7 h-7" />
                 </div>
@@ -83,7 +81,7 @@ const App: React.FC = () => {
                         <button
                             key={idx}
                             onClick={() => setView(item.id as any)}
-                            className={`p-3 rounded-xl transition-all group relative ${view === item.id ? 'bg-accent/10 text-accent' : 'text-slate-500 hover:bg-slate-800/50 hover:text-accent'}`}
+                            className={`p-3 rounded-xl transition-all group relative ${view === item.id ? 'bg-accent/10 text-accent' : 'text-slate-500 hover:bg-slate-800/95 hover:text-accent'}`}
                         >
                             <item.icon className="w-6 h-6" />
                             <span className="absolute left-16 px-2 py-1 bg-slate-800 text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-50">{item.label}</span>
@@ -91,14 +89,17 @@ const App: React.FC = () => {
                     ))}
                 </nav>
 
-                <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center border border-slate-700">
+                <div
+                    className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center border border-slate-700 cursor-pointer hover:bg-slate-700 transition"
+                    onClick={() => alert("Profile view coming soon!")}
+                >
                     <User className="w-5 h-5 text-slate-400" />
                 </div>
             </aside>
 
             {/* Main Content */}
-            <main className="flex-1 overflow-y-auto bg-background p-4 lg:p-8">
-                <div className="max-w-7xl mx-auto">
+            <main className="flex-1 overflow-y-auto p-4 lg:p-8 relative z-10 pointer-events-none">
+                <div className="max-w-7xl mx-auto pointer-events-auto">
                     {/* Header */}
                     <header className="flex flex-col lg:flex-row justify-between items-center gap-6 mb-12">
                         <div className="text-center lg:text-left cursor-pointer" onClick={() => setView('dashboard')}>
@@ -113,16 +114,9 @@ const App: React.FC = () => {
                         </div>
 
                         <div className="flex items-center gap-4 w-full lg:w-auto">
-                            <form onSubmit={handleSearch} className="relative flex-1 lg:w-96 shadow-2xl shadow-accent/5">
-                                <input
-                                    type="text"
-                                    value={symbol}
-                                    onChange={(e) => setSymbol(e.target.value.toUpperCase())}
-                                    placeholder="Search Stock (e.g. RELIANCE)"
-                                    className="w-full bg-slate-900/50 border border-slate-700/50 rounded-2xl py-4 pl-12 pr-4 focus:ring-4 focus:ring-accent/20 focus:border-accent outline-none transition-all backdrop-blur-xl font-bold"
-                                />
-                                <Search className="absolute left-4 top-4.5 text-slate-400 w-5 h-5" />
-                            </form>
+                            <div className="relative flex-1 lg:w-96 shadow-2xl shadow-accent/5">
+                                <StockSearch onSelect={(s) => fetchAnalysis(s)} placeholder="Search Stock (e.g. RELIANCE)" />
+                            </div>
                         </div>
                     </header>
 
@@ -145,7 +139,7 @@ const App: React.FC = () => {
                                     {loading && watchlist.length === 0 ? (
                                         [...Array(6)].map((_, i) => <StockTileSkeleton key={i} />)
                                     ) : (
-                                        watchlist.map((stock, idx) => (
+                                        watchlist.slice(0, visibleCount).map((stock, idx) => (
                                             <motion.div
                                                 key={idx}
                                                 initial={{ opacity: 0, y: 20 }}
@@ -157,6 +151,17 @@ const App: React.FC = () => {
                                         ))
                                     )}
                                 </div>
+
+                                {watchlist.length > visibleCount && (
+                                    <div className="mt-8 flex justify-center">
+                                        <button
+                                            onClick={() => setVisibleCount(prev => prev + 8)}
+                                            className="glass-button text-sm flex items-center gap-2"
+                                        >
+                                            Load More Ideas
+                                        </button>
+                                    </div>
+                                )}
                             </motion.div>
                         )}
 

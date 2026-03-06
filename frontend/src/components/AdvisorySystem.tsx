@@ -69,7 +69,7 @@ export const AlertsSystem: React.FC = () => {
                             <label className="text-[10px] font-black text-slate-500 uppercase mb-2 block">Condition</label>
                             <select
                                 onChange={(e) => setNewAlert({ ...newAlert, condition: e.target.value })}
-                                className="w-full bg-slate-800/50 border border-slate-700/50 rounded-xl py-3 px-4 outline-none text-sm font-bold text-white"
+                                className="w-full bg-slate-800/95 border border-slate-700/50 rounded-xl py-3 px-4 outline-none text-sm font-bold text-white"
                             >
                                 <option value="ABOVE">PRICE ABOVE</option>
                                 <option value="BELOW">PRICE BELOW</option>
@@ -81,7 +81,7 @@ export const AlertsSystem: React.FC = () => {
                                 type="number"
                                 placeholder="Price target..."
                                 onChange={(e) => setNewAlert({ ...newAlert, threshold: parseFloat(e.target.value) })}
-                                className="w-full bg-slate-800/50 border border-slate-700/50 rounded-xl py-3 px-4 outline-none text-sm font-bold text-white"
+                                className="w-full bg-slate-800/95 border border-slate-700/50 rounded-xl py-3 px-4 outline-none text-sm font-bold text-white"
                             />
                         </div>
                         <button
@@ -105,7 +105,7 @@ export const AlertsSystem: React.FC = () => {
                             key={alert.id}
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="p-6 bg-slate-900/50 border border-slate-800 rounded-3xl flex items-center justify-between group"
+                            className="p-6 bg-slate-900/95 border border-slate-800 rounded-3xl flex items-center justify-between group"
                         >
                             <div className="flex items-center gap-4">
                                 <div className="p-3 bg-rose-500/10 text-rose-500 rounded-2xl">
@@ -179,7 +179,7 @@ export const AdviserPanel: React.FC = () => {
                         </h3>
                         <div className="flex flex-wrap gap-4">
                             {summary.top_picks.map((pick: any, i: number) => (
-                                <div key={i} className="px-5 py-3 bg-slate-800/50 border border-slate-700 rounded-2xl flex items-center gap-4">
+                                <div key={i} className="px-5 py-3 bg-slate-800/95 border border-slate-700 rounded-2xl flex items-center gap-4">
                                     <span className="font-black text-white">{pick.symbol}</span>
                                     <span className={`text-xs font-black ${pick.overall_score > 60 ? 'text-emerald-400' : 'text-amber-400'}`}>
                                         {pick.overall_score}% SCORE

@@ -15,7 +15,7 @@ const Skeleton: React.FC<SkeletonProps> = ({ className, variant = 'rect' }) => {
 };
 
 export const StockTileSkeleton = () => (
-    <div className="p-6 bg-slate-900/50 border border-slate-800/80 rounded-3xl space-y-6">
+    <div className="p-6 bg-slate-900/95 border border-slate-800/80 rounded-3xl space-y-6">
         <div className="flex justify-between items-start">
             <div className="space-y-2 w-1/2">
                 <Skeleton className="h-6 w-24" />

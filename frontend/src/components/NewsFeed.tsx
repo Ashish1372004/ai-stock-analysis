@@ -66,7 +66,7 @@ const NewsFeed: React.FC<{ symbol?: string; compact?: boolean }> = ({ symbol, co
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: idx * 0.03 }}
-                        className="px-4 py-2 bg-slate-800/50 hover:bg-accent border border-slate-700/50 hover:border-accent rounded-full text-[10px] font-bold text-slate-300 hover:text-white transition-all whitespace-nowrap overflow-hidden text-ellipsis max-w-[200px]"
+                        className="px-4 py-2 bg-slate-800/95 hover:bg-accent border border-slate-700/50 hover:border-accent rounded-full text-[10px] font-bold text-slate-300 hover:text-white transition-all whitespace-nowrap overflow-hidden text-ellipsis max-w-[200px]"
                         title={item.title}
                     >
                         {item.title}
@@ -140,7 +140,7 @@ const NewsCard: React.FC<{ item: NewsItem; idx: number }> = ({ item, idx }) => (
                             <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Market Intelligence Node</span>
                         </div>
                     </div>
-                    <div className="flex items-center gap-2 px-3 py-1 bg-slate-800/50 rounded-full border border-slate-700/30">
+                    <div className="flex items-center gap-2 px-3 py-1 bg-slate-800/95 rounded-full border border-slate-700/30">
                         <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
                         <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Live</span>
                     </div>

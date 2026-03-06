@@ -23,7 +23,7 @@ const Watchlist: React.FC<WatchlistProps> = ({ items, onSelect }) => {
                         key={item.symbol}
                         whileHover={{ x: 5 }}
                         onClick={() => onSelect(item.symbol)}
-                        className="w-full flex items-center justify-between p-4 rounded-xl hover:bg-slate-800/50 transition-colors border border-transparent hover:border-slate-700"
+                        className="w-full flex items-center justify-between p-4 rounded-xl hover:bg-slate-800/95 transition-colors border border-transparent hover:border-slate-700"
                     >
                         <div className="text-left">
                             <p className="font-bold text-lg">{item.symbol}</p>

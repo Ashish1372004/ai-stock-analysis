@@ -15,7 +15,7 @@ const StockTile: React.FC<StockTileProps> = ({ stock, onClick }) => {
             whileHover={{ scale: 1.02, translateY: -5 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => onClick(stock.symbol)}
-            className="p-6 bg-slate-900/50 border border-slate-800/80 rounded-3xl cursor-pointer hover:border-accent/40 transition-all shadow-xl hover:shadow-accent/5"
+            className="p-6 bg-slate-900/95 border border-slate-800/80 rounded-3xl cursor-pointer hover:border-accent/40 transition-all shadow-xl hover:shadow-accent/5"
         >
             <div className="flex justify-between items-start mb-6">
                 <div>

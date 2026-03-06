@@ -46,7 +46,7 @@ const StockSearch: React.FC<StockSearchProps> = ({ onSelect, placeholder = "Sear
                     value={query}
                     onChange={(e) => setQuery(e.target.value.toUpperCase())}
                     placeholder={placeholder}
-                    className="w-full bg-slate-800/50 border border-slate-700/50 rounded-xl py-3 pl-10 pr-4 focus:border-accent outline-none text-sm font-bold"
+                    className="w-full bg-slate-800/95 border border-slate-700/50 rounded-xl py-3 pl-10 pr-4 focus:border-accent outline-none text-sm font-bold"
                 />
                 <Search className="absolute left-3 top-3.5 text-slate-500 w-4 h-4" />
             </div>

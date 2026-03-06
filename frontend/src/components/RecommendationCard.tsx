@@ -50,7 +50,7 @@ const RecommendationCard: React.FC<RecommendationProps> = ({ recommendation }) =
             </p>
 
             <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="p-4 bg-slate-800/50 rounded-2xl border border-slate-700/50">
+                <div className="p-4 bg-slate-800/95 rounded-2xl border border-slate-700/50">
                     <span className="text-[10px] font-black text-slate-500 uppercase block mb-1 tracking-widest">Risk Profile</span>
                     <div className={`text-lg font-black ${recommendation.risk_level === 'LOW' ? 'text-emerald-400' :
                             recommendation.risk_level === 'HIGH' ? 'text-rose-400' : 'text-amber-400'
@@ -58,7 +58,7 @@ const RecommendationCard: React.FC<RecommendationProps> = ({ recommendation }) =
                         {recommendation.risk_level}
                     </div>
                 </div>
-                <div className="p-4 bg-slate-800/50 rounded-2xl border border-slate-700/50">
+                <div className="p-4 bg-slate-800/95 rounded-2xl border border-slate-700/50">
                     <span className="text-[10px] font-black text-slate-500 uppercase block mb-1 tracking-widest">Hold Duration</span>
                     <div className="text-lg font-black text-accent uppercase">
                         {recommendation.recommended_holding.replace('_', ' ')}
