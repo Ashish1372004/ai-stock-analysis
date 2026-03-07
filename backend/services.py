@@ -3,6 +3,7 @@ import pandas as pd
 from datetime import datetime, timedelta
 from typing import List, Optional, Dict
 from .models import StockDB, StockPriceHistoryDB
+from .angel_one import angel_one_service
 
 
 class StockDataService:
@@ -10,20 +11,46 @@ class StockDataService:
     _cache_expiry = 300 # 5 minutes
     @staticmethod
     def fetch_live_data(symbol: str) -> Optional[Dict]:
-        """Fetch live stock data from yfinance."""
+        """Fetch live stock data from Angel One (Real-time) with yfinance fallback."""
         try:
-            # Add .NS for NSE if not present
-            if not symbol.endswith(('.NS', '.BO')):
-                symbol = f"{symbol}.NS"
+            # Add .NS for NSE if not present for yfinance fallback
+            yf_symbol = symbol if symbol.endswith(('.NS', '.BO')) else f"{symbol}.NS"
             
             # Check cache
             now = datetime.utcnow()
-            if symbol in StockDataService._cache:
-                cached_data, timestamp = StockDataService._cache[symbol]
+            if yf_symbol in StockDataService._cache:
+                cached_data, timestamp = StockDataService._cache[yf_symbol]
                 if (now - timestamp).total_seconds() < StockDataService._cache_expiry:
                     return cached_data
-                
-            ticker = yf.Ticker(symbol)
+
+            # 1. Try Angel One (Real-time)
+            try:
+                ao_quote = angel_one_service.get_live_quote(symbol)
+                if ao_quote:
+                    # We still need metadata like Name, Market Cap etc which SmartAPI LTP doesn't provide easily without more calls
+                    # So we'll merge AO price with yf metadata or last known metadata
+                    
+                    # Try to get metadata from cache or yf info (cached)
+                    ticker = yf.Ticker(yf_symbol)
+                    info = ticker.info # This is often cached by yf or we can just use simple defaults
+                    
+                    data = {
+                        "symbol": yf_symbol,
+                        "name": info.get('longName') or info.get('shortName') or symbol,
+                        "last_price": ao_quote['last_price'],
+                        "change_percent": ao_quote.get('change_percent', 0),
+                        "market_cap": info.get('marketCap', 0),
+                        "pe_ratio": info.get('forwardPE', 0),
+                        "updated_at": datetime.utcnow(),
+                        "source": "AngelOne (Real-time)"
+                    }
+                    StockDataService._cache[yf_symbol] = (data, now)
+                    return data
+            except Exception as ao_err:
+                print(f"Angel One fetch failed for {symbol}: {ao_err}")
+
+            # 2. Fallback to yfinance (Delayed)
+            ticker = yf.Ticker(yf_symbol)
             info = ticker.info
             
             if not info or 'regularMarketPrice' not in info or info['regularMarketPrice'] is None:
