@@ -37,7 +37,7 @@ const CursorEffect: React.FC = () => {
                 this.baseY = y;
                 this.x = x;
                 this.y = y;
-                this.size = 3;
+                this.size = 2;
                 this.density = (Math.random() * 30) + 1;
                 this.distance = 0;
             }
@@ -51,7 +51,7 @@ const CursorEffect: React.FC = () => {
                 // Move particle based on distance
                 const forceDirectionX = dx / this.distance;
                 const forceDirectionY = dy / this.distance;
-                const maxDistance = 150;
+                const maxDistance = 80;
                 const force = (maxDistance - this.distance) / maxDistance;
                 const directionX = forceDirectionX * force * this.density;
                 const directionY = forceDirectionY * force * this.density;
