@@ -97,10 +97,9 @@ class StockPredictor:
     def predict_next_day(self, live_df: pd.DataFrame) -> dict:
         """Predict the next day's price using the latest data."""
         if not self.model and not self.load_model():
-            # If no model exists, try to train one quickly
-            success = self.train()
-            if not success:
-                return {"predicted_price": None, "confidence": 0}
+            # If no model exists, skip prediction instead of training on-the-fly
+            # Training should happen in a background process or via a separate endpoint
+            return {"predicted_price": None, "confidence": 0}
 
         prepared_df = self.prepare_features(live_df.copy())
         if prepared_df.empty:

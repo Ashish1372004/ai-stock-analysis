@@ -9,6 +9,10 @@ from .angel_one import angel_one_service
 class StockDataService:
     _cache = {}
     _cache_expiry = 300 # 5 minutes
+    _metadata_cache = {} # Long term cache for names/caps
+    _metadata_expiry = 86400 # 24 hours
+    _history_cache = {}
+    _history_expiry = 3600 # 1 hour
     @staticmethod
     def fetch_live_data(symbol: str) -> Optional[Dict]:
         """Fetch live stock data from Angel One (Real-time) with yfinance fallback."""
@@ -22,6 +26,15 @@ class StockDataService:
                 cached_data, timestamp = StockDataService._cache[yf_symbol]
                 if (now - timestamp).total_seconds() < StockDataService._cache_expiry:
                     return cached_data
+
+            # Use metadata cache if available to avoid info calls
+            cached_meta = StockDataService._metadata_cache.get(yf_symbol)
+            if cached_meta and (now - cached_meta['timestamp']).total_seconds() < StockDataService._metadata_expiry:
+                name = cached_meta['name']
+                market_cap = cached_meta['market_cap']
+                pe_ratio = cached_meta['pe_ratio']
+            else:
+                name = None
 
             # 1. Try Angel One (Real-time)
             try:
@@ -112,11 +125,25 @@ class StockDataService:
 
     @staticmethod
     def fetch_historical_data(symbol: str, period: str = "1y") -> pd.DataFrame:
-        """Fetch historical price data."""
+        """Fetch historical price data with caching."""
         if not symbol.endswith(('.NS', '.BO')):
             symbol = f"{symbol}.NS"
+        
+        # Check cache
+        now = datetime.utcnow()
+        cache_key = f"{symbol}_{period}"
+        if cache_key in StockDataService._history_cache:
+            df, timestamp = StockDataService._history_cache[cache_key]
+            if (now - timestamp).total_seconds() < StockDataService._history_expiry:
+                return df
+
         ticker = yf.Ticker(symbol)
         df = ticker.history(period=period)
+        
+        # Cache if not empty
+        if not df.empty:
+            StockDataService._history_cache[cache_key] = (df, now)
+            
         return df
 
     @staticmethod

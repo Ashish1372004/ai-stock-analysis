@@ -14,11 +14,22 @@ import uuid
 import os
 import time
 import asyncio
+from concurrent.futures import ThreadPoolExecutor
 
 # Initialize database on startup
 init_db()
 
 app = FastAPI(title="AI-Stock Market Analysis API")
+
+# Global cache for watchlist
+WATCHLIST_CACHE = {
+    "data": None,
+    "timestamp": 0,
+    "ttl": 300 # 5 minutes
+}
+
+# Thread pool for parallel analysis
+executor = ThreadPoolExecutor(max_workers=10)
 
 app.add_middleware(
     CORSMiddleware,
@@ -275,6 +286,11 @@ async def get_adviser_summary():
 
 @app.get("/api/watchlist", response_model=List[AnalysisResult])
 async def get_watchlist():
+    # Check global cache
+    now = time.time()
+    if WATCHLIST_CACHE["data"] and (now - WATCHLIST_CACHE["timestamp"]) < WATCHLIST_CACHE["ttl"]:
+        return WATCHLIST_CACHE["data"]
+
     # Expanded Diversified Indian Stocks for Investment Advisory
     symbols = [
         "RELIANCE", "TCS", "HDFCBANK", "INFY", "TATAMOTORS", 
@@ -283,16 +299,30 @@ async def get_watchlist():
         "ASIANPAINT", "MARUTI", "SUNPHARMA", "TITAN", "ULTRACEMCO",
         "KOTAKBANK", "LT", "BAJAJFINSV", "JSWSTEEL"
     ]
+    
+    loop = asyncio.get_event_loop()
+    
+    # Run analysis tasks in parallel using thread pool
+    tasks = [
+        loop.run_in_executor(executor, AnalysisEngine.analyze_stock, s)
+        for s in symbols
+    ]
+    
+    # Wait for all tasks to complete
+    raw_results = await asyncio.gather(*tasks, return_exceptions=True)
+    
     results = []
-    for s in symbols:
-        try:
-            analysis = AnalysisEngine.analyze_stock(s)
-            results.append(analysis)
-        except Exception as e:
-            print(f"Error pre-fetching {s}: {e}")
+    for idx, res in enumerate(raw_results):
+        if isinstance(res, Exception):
+            print(f"Error analyzing {symbols[idx]}: {res}")
             continue
-        finally:
-            await asyncio.sleep(1) # Delay to avoid rate limiting
+        if res:
+            results.append(res)
+            
+    # Update cache
+    WATCHLIST_CACHE["data"] = results
+    WATCHLIST_CACHE["timestamp"] = now
+    
     return results
 
 if __name__ == "__main__":
